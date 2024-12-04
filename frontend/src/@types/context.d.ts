@@ -4,9 +4,12 @@ export interface Entry {
   description: string;
   created_at: Date | string;
 }
+
 export type EntryContextType = {
   entries: Entry[];
+  darkMode:   boolean;
   saveEntry: (entry: Entry) => void;
   updateEntry: (id: string, entryData: Entry) => void;
   deleteEntry: (id: string) => void;
+  toggleDarkMode: () => void;
 };

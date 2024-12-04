@@ -7,11 +7,39 @@ export const EntryContext = createContext<EntryContextType | null>(null);
 export const EntryProvider: React.FC<{children : ReactNode}> = ({children}) => {
     const [entries, setEntries] = useState<Entry[]>([]);
 
+    const [darkMode, setDarkMode] = useState<boolean>(() => {
+      return localStorage.getItem('darkMode') === 'true';
+    });
+
     const initState = async () => {
         const data = await axios.get<Entry[]>('http://localhost:3001/get/')
         const initialStateBody = data.data
         setEntries(initialStateBody)
     }
+
+    const toggleDarkMode = () => {
+      setDarkMode((prev) => {
+        const newMode = !prev;
+
+        if (newMode) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+
+        localStorage.setItem('darkMode', newMode.toString());
+        return newMode;
+      });
+    };
+
+    useEffect(() => {
+      // Apply the stored dark mode preference on initial load
+      if (darkMode) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }, [darkMode]);
 
     useEffect(() => {
         initState()
@@ -37,7 +65,7 @@ export const EntryProvider: React.FC<{children : ReactNode}> = ({children}) => {
         setEntries(e => e.filter(entry => entry.id != id))
     }
     return (
-        <EntryContext.Provider value={{ entries, saveEntry, updateEntry, deleteEntry }}>
+        <EntryContext.Provider value={{ entries, saveEntry, updateEntry, deleteEntry, darkMode, toggleDarkMode }}>
           {children}
         </EntryContext.Provider>
       )
