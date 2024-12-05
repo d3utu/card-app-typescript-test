@@ -15,4 +15,5 @@ model Entry {
   title       String
   description String
   created_at  DateTime
+  scheduled_date DateTime
 }
