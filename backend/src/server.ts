@@ -27,6 +27,10 @@ server.get<{ Body: Entry; Params: { id: string } }>(
 
 server.post<{ Body: Entry }>("/create/", async (req, reply) => {
   let newEntryBody = req.body;
+
+  if (newEntryBody.scheduled_date) {
+    newEntryBody.scheduled_date = new Date(req.body.scheduled_date);
+  }
   newEntryBody.created_at
     ? (newEntryBody.created_at = new Date(req.body.created_at))
     : (newEntryBody.created_at = new Date());
@@ -51,6 +55,10 @@ server.put<{ Params: { id: string }; Body: Entry }>(
   "/update/:id",
   async (req, reply) => {
     let updatedEntryBody = req.body;
+
+    if (updatedEntryBody.scheduled_date) {
+      updatedEntryBody.scheduled_date = new Date(req.body.scheduled_date);
+    }
     updatedEntryBody.created_at
       ? (updatedEntryBody.created_at = new Date(req.body.created_at))
       : (updatedEntryBody.created_at = new Date());
