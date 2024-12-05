@@ -7,6 +7,18 @@ export const server = fastify();
 
 server.register(cors, {});
 
+const validateCreateEntry = (data: Partial<Entry>) => {
+  if (!data.title || typeof data.title !== "string" || data.title.trim() === "") {
+    throw new Error("Title is required and must be a non-empty string.");
+  }
+  if (!data.description || typeof data.description !== "string" || data.description.trim() === "") {
+    throw new Error("Description is required and must be a non-empty string.");
+  }
+  if (data.scheduled_date && isNaN(Date.parse(data.scheduled_date.toString()))) {
+    throw new Error("Scheduled date must be a valid date.");
+  }
+};
+
 server.get<{ Reply: Entry[] }>("/get/", async (req, reply) => {
   const dbAllEntries = await Prisma.entry.findMany({});
   reply.send(dbAllEntries);
@@ -35,6 +47,7 @@ server.post<{ Body: Entry }>("/create/", async (req, reply) => {
     ? (newEntryBody.created_at = new Date(req.body.created_at))
     : (newEntryBody.created_at = new Date());
   try {
+    validateCreateEntry(newEntryBody);
     const createdEntryData = await Prisma.entry.create({ data: req.body });
     reply.send(createdEntryData);
   } catch {
