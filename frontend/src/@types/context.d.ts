@@ -3,6 +3,7 @@ export interface Entry {
   title: string;
   description: string;
   created_at: Date | string;
+  scheduled_date: Date | string;
 }
 
 export type EntryContextType = {
