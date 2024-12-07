@@ -3,9 +3,11 @@ import Prisma from "../src/db";
 
 beforeAll(async () => {
   await server.ready(); // Ensure the server is ready
+  await Prisma.entry.deleteMany();
 });
 
 afterAll(async () => {
+  await Prisma.entry.deleteMany();
   await server.close(); // Close the server after tests
 });
 
@@ -158,6 +160,36 @@ test('POST /create/ should create a new entry with created_at automatically assi
   
   expect(new Date(responseData.created_at)).toBeInstanceOf(Date);
 });
+
+test('POST /create/ should create a new entry with scheduled_date automatically assigned', async () => {
+  const newEntry = {
+    title: 'Test Entry',
+    description: 'This is a test',
+    created_at: '2024-12-01T12:00:00Z', // Explicitly providing created_at
+  };
+
+  const response = await server.inject({
+    method: 'POST',
+    url: '/create/',
+    payload: newEntry,
+  });
+
+  expect(response.statusCode).toBe(200);
+  const responseData = response.json();
+
+  expect(responseData).toHaveProperty('id'); // Verify that an ID was assigned
+  expect(responseData.title).toBe(newEntry.title); // Ensure title is correct
+  expect(responseData.description).toBe(newEntry.description); // Ensure description is correct
+
+  // Check if scheduled_date is automatically assigned
+  expect(new Date(responseData.scheduled_date)).toBeInstanceOf(Date);
+
+  // Ensure created_at matches the explicitly provided value
+  expect(new Date(responseData.created_at).toISOString()).toBe(
+    new Date(newEntry.created_at).toISOString()
+  );
+});
+
 
 test('POST /create/ should return 500 for missing fields', async () => {
   const invalidEntry = { title: 'Test Title' }; 
