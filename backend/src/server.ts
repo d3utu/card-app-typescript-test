@@ -40,10 +40,11 @@ server.get<{ Body: Entry; Params: { id: string } }>(
 server.post<{ Body: Entry }>("/create/", async (req, reply) => {
   let newEntryBody = req.body;
 
-  if (newEntryBody.scheduled_date) {
-    newEntryBody.scheduled_date = new Date(req.body.scheduled_date);
-  }
-  newEntryBody.created_at
+  newEntryBody.scheduled_date
+    ? (newEntryBody.scheduled_date = new Date(req.body.scheduled_date))
+    : (newEntryBody.scheduled_date = new Date());
+  
+    newEntryBody.created_at
     ? (newEntryBody.created_at = new Date(req.body.created_at))
     : (newEntryBody.created_at = new Date());
   try {
